@@ -1,0 +1,52 @@
+buildscript {
+    ext {
+        tools_version = '7.2.0'
+        sdk_version = 34
+    }
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:$tools_version"
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+
+android {
+    namespace 'de.markusfisch.android.cameraview'
+    compileSdkVersion sdk_version
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion sdk_version
+
+        versionCode 22
+        versionName '1.10.0'
+    }
+}
+
+// Этот блок нужен только если ты хочешь публиковать AAR через maven
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                // Исправлено: используем компоненты Android Library корректно
+                def releaseComponent = components.findByName("release") ?: components.findByName("android")
+                if (releaseComponent != null) {
+                    from releaseComponent
+                } else {
+                    logger.warn("No suitable component found for publishing")
+                }
+
+                groupId = 'com.github.markusfisch'
+                artifactId = 'final'
+                version = '1.10.0'
+            }
+        }
+    }
+}
